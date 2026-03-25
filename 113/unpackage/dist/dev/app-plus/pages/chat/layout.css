@@ -1,0 +1,295 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+body {
+  height: 100%;
+  overflow: hidden;
+}
+.app-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: #f0f4f9;
+}
+
+/* 侧边栏样式 */
+.sidebar {
+  width: 280px;
+  background-color: #f0f4f9;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+}
+.sidebar.collapsed {
+  width: 60px;
+}
+.sidebar.collapsed .new-chat-btn, .sidebar.collapsed .history-list {
+  display: none;
+}
+.sidebar .sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+}
+.sidebar .sidebar-header .menu-btn {
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+}
+.sidebar .sidebar-header .logo-text {
+  font-size: 20px;
+  font-weight: 500;
+  margin-left: 15px;
+}
+.sidebar .new-chat-btn {
+  margin: 0 15px 20px;
+  background: #e3e3e3;
+  padding: 12px 20px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+.sidebar .new-chat-btn:hover {
+  background: #dcdcdc;
+}
+.sidebar .new-chat-btn .icon {
+  margin-right: 10px;
+}
+.sidebar .history-list {
+  flex: 1;
+  padding: 0 15px;
+  overflow-y: auto;
+}
+.sidebar .history-list .list-title {
+  font-size: 12px;
+  color: #444;
+  margin: 10px;
+}
+.sidebar .history-list .history-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 5px;
+  position: relative;
+}
+.sidebar .history-list .history-item.active {
+  background: #e3e3e3;
+}
+.sidebar .history-list .history-item:hover {
+  background: #e8eaed;
+}
+.sidebar .history-list .history-item:hover .delete-btn {
+  opacity: 1;
+}
+.sidebar .history-list .history-item .icon {
+  margin-right: 12px;
+  opacity: 0.7;
+}
+.sidebar .history-list .history-item .item-info {
+  flex: 1;
+  overflow: hidden;
+}
+.sidebar .history-list .history-item .item-info .item-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar .history-list .history-item .item-info .item-preview {
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar .history-list .history-item .delete-btn {
+  opacity: 0;
+  font-size: 20px;
+  color: #999;
+  padding: 0 5px;
+  transition: opacity 0.2s;
+}
+.sidebar .history-list .history-item .delete-btn:hover {
+  color: #d32f2f;
+}
+
+/* 主内容区样式 */
+.main-content {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 24px;
+  margin: 10px 10px 10px 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+}
+.main-header .model-selector {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+.main-header .model-selector .arrow {
+  font-size: 12px;
+  margin-left: 8px;
+  color: #666;
+}
+.main-header .user-avatar {
+  width: 36px;
+  height: 36px;
+  background: #8e24aa;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+}
+.chat-stream {
+  flex: 1;
+  padding: 0 10%;
+}
+.chat-stream .empty-state {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10vh;
+}
+.chat-stream .empty-state .greeting {
+  font-size: 40px;
+  font-weight: bold;
+  background: linear-gradient(45deg, #1a73e8, #8e24aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.chat-stream .empty-state .sub-greeting {
+  font-size: 40px;
+  color: #c4c7c5;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.chat-stream .message-row {
+  display: flex;
+  margin-bottom: 30px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.chat-stream .message-row.user {
+  justify-content: flex-end;
+}
+.chat-stream .message-row.user .bubble-content {
+  background: #f0f4f9;
+  border-radius: 20px 20px 4px 20px;
+  padding: 15px 20px;
+}
+.chat-stream .message-row.assistant {
+  justify-content: flex-start;
+}
+.chat-stream .message-row.assistant .ai-avatar {
+  font-size: 24px;
+  margin-right: 15px;
+}
+.chat-stream .message-row.assistant .bubble-content {
+  padding: 10px 0;
+  line-height: 1.6;
+}
+.chat-stream .message-row .text-block {
+  font-size: 16px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+.input-area-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 10% 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 40%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.input-area-wrapper .input-box {
+  width: 100%;
+  max-width: 800px;
+  background: #f0f4f9;
+  border-radius: 30px;
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 15px;
+}
+.input-area-wrapper .input-box .text-input {
+  flex: 1;
+  min-height: 24px;
+  max-height: 200px;
+  padding: 10px;
+  font-size: 16px;
+  background: transparent;
+}
+.input-area-wrapper .input-box .action-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #444;
+}
+.input-area-wrapper .input-box .send-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 50%;
+  color: #ccc;
+  transition: 0.2s;
+}
+.input-area-wrapper .input-box .send-btn.active {
+  background: #1a73e8;
+  color: #fff;
+  cursor: pointer;
+}
+.input-area-wrapper .disclaimer {
+  font-size: 12px;
+  color: #666;
+  margin-top: 15px;
+}
