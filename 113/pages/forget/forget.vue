@@ -106,8 +106,8 @@ const handleSendCode = async () => {
 	
 	codeLoading.value = true;
 	try {
-		await sendLoginCode(formData.value.email);
-		uni.showToast({ title: '验证码已发送', icon: 'success' });
+		const res = await sendLoginCode(formData.value.email);
+		uni.showToast({ title: res?.msg || '验证码已发送', icon: 'success' });
 		startCountdown();
 	} catch (e) {}
 	finally {

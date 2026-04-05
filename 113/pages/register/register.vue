@@ -118,8 +118,8 @@ const handleSendCode = async () => {
 	
 	codeLoading.value = true;
 	try {
-		await sendRegisterCode(regData.value.email);
-		uni.showToast({ title: '验证码已发送', icon: 'success' });
+		const res = await sendRegisterCode(regData.value.email);
+		uni.showToast({ title: res?.msg || '验证码已发送', icon: 'success' });
 		startCountdown();
 	} catch (e) {}
 	finally {
