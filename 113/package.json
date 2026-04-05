@@ -1,0 +1,17 @@
+{
+  "name": "uni-ai-chat-v2",
+  "version": "1.0.0",
+  "description": "A modern AI chat application built with uni-app",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext .js,.vue"
+  },
+  "dependencies": {
+    "vue": "^3.2.45"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0",
+    "sass": "^1.56.1"
+  }
+}

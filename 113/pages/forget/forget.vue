@@ -1,115 +1,253 @@
 <template>
-	<view class="container">
-		<view class="welcome-section">
-			<text class="main-title">找回密码</text>
-			<text class="sub-title">请输入您注册时的邮箱以重置密码</text>
-		</view>
+	<view class="page-wrapper">
+		<view class="container">
+			<view class="header">
+				<text class="title">验证码登录</text>
+				<text class="subtitle">无需密码，使用邮箱验证码快速登录</text>
+			</view>
 
-		<view class="input-content">
-			<view class="input-item">
-				<text class="label">注册邮箱</text>
-				<input type="text" v-model="email" placeholder="请输入您的邮箱地址" />
-			</view>
-			
-			<view class="input-item">
-				<text class="label">设置新密码</text>
-				<input type="password" v-model="newPassword" placeholder="请输入6-16位新密码" />
-			</view>
-			
-			<view class="input-item">
-				<text class="label">确认新密码</text>
-				<input type="password" v-model="confirmPassword" placeholder="请再次输入新密码" />
-			</view>
-		</view>
+			<view class="form-container">
+				<view class="input-group">
+					<text class="label">邮箱</text>
+					<input 
+						type="text" 
+						v-model="formData.email" 
+						class="input"
+						placeholder="您的注册邮箱" 
+						placeholder-class="placeholder"
+					/>
+				</view>
+				
+				<view class="input-group">
+					<text class="label">密码 (可选)</text>
+					<input 
+						type="password" 
+						v-model="formData.password" 
+						class="input"
+						placeholder="如果已设置密码" 
+						placeholder-class="placeholder"
+					/>
+				</view>
 
-		<button class="confirm-btn" @click="handleReset">重 置 密 码</button>
-		
-		<view class="footer" @click="goBack">
-			<text>想起密码了？立即登录</text>
+				<view class="input-group">
+					<text class="label">验证码</text>
+					<view class="code-row">
+						<input 
+							type="text" 
+							v-model="formData.code" 
+							class="input code-input"
+							placeholder="邮箱验证码" 
+							placeholder-class="placeholder"
+						/>
+						<button 
+							class="send-code-btn" 
+							:disabled="countdown > 0 || codeLoading" 
+							@click="handleSendCode"
+						>
+							{{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
+						</button>
+					</view>
+				</view>
+			</view>
+
+			<button class="login-btn" :loading="loading" @click="handleLogin">
+				登 录
+			</button>
+			
+			<view class="footer" @click="goBack">
+				<text>想起密码了？<text class="link">立即登录</text></text>
+			</view>
 		</view>
 	</view>
 </template>
 
-<script>
-export default {
-	data() {
-		return {
-			email: '',
-			newPassword: '',
-			confirmPassword: ''
-		};
-	},
-	methods: {
-		handleReset() {
-			const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-			
-			// 1. 基础校验
-			if (!emailRegex.test(this.email)) {
-				return uni.showToast({ title: '邮箱格式不正确', icon: 'none' });
-			}
-			if (this.newPassword.length < 6) {
-				return uni.showToast({ title: '新密码不能少于6位', icon: 'none' });
-			}
-			if (this.newPassword !== this.confirmPassword) {
-				return uni.showToast({ title: '两次输入不一致', icon: 'none' });
-			}
+<script setup>
+import { ref, onUnmounted } from 'vue';
+import { sendLoginCode, loginUser, normalizeUser } from '@/api/user.js';
 
-			// 2. 读取本地用户名单
-			let userList = uni.getStorageSync('user_list') || [];
-			
-			// 3. 查找该邮箱是否存在
-			const userIndex = userList.findIndex(item => item.email === this.email);
+const formData = ref({
+	email: '',
+	password: '',
+	code: ''
+});
 
-			if (userIndex === -1) {
-				return uni.showToast({ title: '该邮箱尚未注册', icon: 'none' });
-			}
+const loading = ref(false);
+const codeLoading = ref(false);
+const countdown = ref(0);
+let timer = null;
 
-			// 4. 更新密码逻辑
-			userList[userIndex].password = this.newPassword;
-
-			// 5. 存回本地并提示
-			try {
-				uni.setStorageSync('user_list', userList);
-				uni.showModal({
-					title: '重置成功',
-					content: '您的密码已更新，请前往登录',
-					showCancel: false,
-					success: () => {
-						this.goBack();
-					}
-				});
-			} catch (e) {
-				uni.showToast({ title: '系统错误，请重试', icon: 'none' });
-			}
-		},
-		
-		goBack() {
-			uni.redirectTo({
-				url: '/pages/index/index'
-			});
-		}
+const clearTimer = () => {
+	if (timer) {
+		clearInterval(timer);
+		timer = null;
 	}
 };
+
+onUnmounted(clearTimer);
+
+const startCountdown = () => {
+	clearTimer();
+	countdown.value = 60;
+	timer = setInterval(() => {
+		if (countdown.value <= 1) {
+			clearTimer();
+			countdown.value = 0;
+			return;
+		}
+		countdown.value--;
+	}, 1000);
+};
+
+const handleSendCode = async () => {
+	const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+	if (!emailRegex.test(formData.value.email)) {
+		return uni.showToast({ title: '邮箱格式不正确', icon: 'none' });
+	}
+	
+	codeLoading.value = true;
+	try {
+		await sendLoginCode(formData.value.email);
+		uni.showToast({ title: '验证码已发送', icon: 'success' });
+		startCountdown();
+	} catch (e) {}
+	finally {
+		codeLoading.value = false;
+	}
+};
+
+const handleLogin = async () => {
+	const { email, password, code } = formData.value;
+	const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+	if (!emailRegex.test(email)) return uni.showToast({ title: '邮箱格式不正确', icon: 'none' });
+	if (!code) return uni.showToast({ title: '请输入验证码', icon: 'none' });
+
+	loading.value = true;
+	try {
+		const res = await loginUser({
+			usernameOrEmail: email,
+			password: password || '',
+			code: code
+		});
+		const user = normalizeUser(res.data, { usernameOrEmail: email, email });
+		uni.setStorageSync('current_user', user);
+		uni.showToast({ title: '登录成功', icon: 'success' });
+		setTimeout(() => {
+			uni.reLaunch({ url: '/pages/chat/layout' });
+		}, 1000);
+	} catch (e) {}
+	finally {
+		loading.value = false;
+	}
+};
+
+const goBack = () => uni.navigateBack();
 </script>
 
-<style lang="scss">
-/* 样式保持不变，复用之前的即可 */
-.container { padding: 0 60rpx; background: #fff; min-height: 100vh; }
-.welcome-section { padding: 120rpx 0 80rpx; 
-	.main-title { font-size: 60rpx; color: #333; font-weight: bold; }
-	.sub-title { font-size: 28rpx; color: #999; margin-top: 10rpx; }
+<style lang="scss" scoped>
+.page-wrapper {
+	background-color: #f5f7fa;
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 40rpx 0;
 }
-.input-content {
-	.input-item { display: flex; flex-direction: column; padding: 20rpx 0; border-bottom: 1rpx solid #eee; margin-bottom: 20rpx;
-		.label { font-size: 26rpx; color: #666; }
-		input { height: 60rpx; font-size: 30rpx; width: 100%; }
+
+.container {
+	width: 90%;
+	max-width: 800rpx;
+	padding: 64rpx;
+	background-color: #ffffff;
+	border-radius: 24rpx;
+	box-shadow: 0 10rpx 40rpx rgba(0, 0, 0, 0.05);
+	display: flex;
+	flex-direction: column;
+}
+
+.header {
+	margin-bottom: 80rpx;
+	.title {
+		font-size: 56rpx;
+		font-weight: 700;
+		color: #1a1a1a;
+		display: block;
+		margin-bottom: 16rpx;
 	}
-	.code-row { flex-direction: row; align-items: flex-end;
-		.flex-1 { flex: 1; }
-		.code-btn { font-size: 24rpx; background: #f5f5f5; color: #666; border-radius: 10rpx; height: 60rpx; line-height: 60rpx; margin-left: 20rpx; padding: 0 20rpx;
-			&:after { border: none; }
+	.subtitle {
+		font-size: 26rpx;
+		color: #999;
+		display: block;
+	}
+}
+
+.form-container {
+	.input-group {
+		margin-bottom: 40rpx;
+		.label {
+			font-size: 24rpx;
+			color: #666;
+			margin-bottom: 12rpx;
+			display: block;
+			font-weight: 500;
+		}
+		.input {
+			height: 90rpx;
+			border-bottom: 1px solid #f0f0f0;
+			font-size: 32rpx;
+			color: #1a1a1a;
+			width: 100%;
+		}
+		.placeholder {
+			color: #ccc;
+		}
+		.code-row {
+			display: flex;
+			align-items: center;
+			.code-input {
+				flex: 1;
+			}
+			.send-code-btn {
+				margin-left: 24rpx;
+				height: 72rpx;
+				line-height: 72rpx;
+				padding: 0 32rpx;
+				font-size: 24rpx;
+				background-color: #f5f7fa;
+				color: #409eff;
+				border-radius: 36rpx;
+				&::after { border: none; }
+				&:disabled {
+					color: #999;
+					background-color: #f8f8f8;
+				}
+			}
 		}
 	}
 }
-.confirm-btn { width: 100%; height: 88rpx; line-height: 88rpx; border-radius: 44rpx; margin-top: 60rpx; background: #333; color: #fff; }
+
+.login-btn {
+	margin-top: 60rpx;
+	height: 100rpx;
+	line-height: 100rpx;
+	background: linear-gradient(135deg, #409eff, #007aff);
+	color: #fff;
+	font-size: 32rpx;
+	font-weight: 600;
+	border-radius: 50rpx;
+	box-shadow: 0 8rpx 20rpx rgba(0, 122, 255, 0.2);
+	&::after { border: none; }
+}
+
+.footer {
+	margin-top: 64rpx;
+	text-align: center;
+	font-size: 26rpx;
+	color: #999;
+	.link {
+		color: #409eff;
+		font-weight: 500;
+		margin-left: 8rpx;
+	}
+}
 </style>
